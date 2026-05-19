@@ -120,7 +120,7 @@ Configurações de resiliência:
 
 ---
 
-## Perguntas analíticas respondidas
+## Perguntas analíticas respondidas - disponiveis no script 03 
 
 | # | Pergunta | Tabela Gold |
 |---|---|---|
