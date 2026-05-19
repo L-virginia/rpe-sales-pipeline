@@ -70,7 +70,7 @@ Modelei em **Star Schema** com uma tabela fato central e quatro dimensões. Resp
 
 **Por que Star Schema?**
 
-As dimensões deste projeto são pequenas (menos de 50 sellers, menos de 50 produtos), então normalizar mais (Snowflake) não agrega valor. A Wide Table sacrifica flexibilidade analítica. O Star Schema é o equilíbrio ideal joins de um único nível, ideal para Spark e Delta Lake, com particionamento na fato e Z-order para acelerar queries.
+As dimensões deste projeto são pequenas (menos de 50 sellers, menos de 50 produtos), então normalizar mais (Snowflake) não agrega valor. A Wide Table sacrifica flexibilidade analítica. O Star Schema é o equilíbrio ideal joins de um único nível, ideal para Spark e Delta Lake, com particionamento na fato e Z-order para acelerar queries. Alem disso esse modelo perfoma melhor para agregação analitica e trona as consultas menos complexas, falicita o uso para ferramentas de BI.
 
 **Modelo:**
 ```
@@ -81,7 +81,7 @@ dim_date ── fact_sales ── dim_product
 
 ### Quality Monitor — observabilidade
 
-Adicionei checagens automáticas no final do pipeline: volume mínimo de registros, taxa de cancelamento, ausência de valores nulos, cobertura de sellers cadastrados e range de datas válido. Os resultados ficam registrados na tabela `pipeline_quality_log` e o job aborta com exceção explícita se alguma checagem crítica falhar.
+Adicionei checagens automáticas no final do pipeline: volume mínimo de registros, taxa de cancelamento, ausência de valores nulos, cobertura de sellers cadastrados e range de datas válido. Os resultados ficam registrados na tabela `pipeline_quality_log` e o job aborta com exceção explícita se alguma checagem crítica falhar. adicionando assim estrategias de monitoramentos ultilizando metricas de volume de ingestão, arquivos reijeitados, percentual de duplicidade, duração das execuçoes e façhas por etapas.
 
 ---
 
@@ -150,14 +150,15 @@ Configurações de resiliência:
 
 ---
 
-## Como rodar
+## Conclusão
 
-1. Criar conta no Databricks (free edition suficiente)
-2. Fazer upload dos CSVs para um Volume (`rpe_landing`)
-3. Importar os notebooks na ordem
-4. Criar o Job com as 4 tasks em sequência
-5. Rodar o Job
+Este projeto demonstra a implementação de um pipeline analítico resiliente utilizando práticas modernas de Engenharia de Dados com foco em:
 
----
+escalabilidade
+manutenibilidade
+observabilidade
+reprocessamento seguro
+performance analítica
+governança operacional
 
-*Desenvolvido em maio de 2026*
+A solução foi projetada considerando cenários corporativos reais e princípios arquiteturais orientados a produção.
