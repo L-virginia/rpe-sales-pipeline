@@ -4,13 +4,13 @@ Pipeline de dados de vendas desenvolvido como parte do processo seletivo da RPE.
 
 **Autora:** Laura Virginia Ferreira Soares  
 **Stack:** Databricks · PySpark · Delta Lake · Python  
-**Ambiente:** Databricks Free Edition (Unity Catalog)
+**Ambiente:** Databricks Free Edition 
 
 ---
 
 ## Sobre o projeto
 
-Recebi múltiplos arquivos CSV com vendas mensais de vendedores e precisei construir um pipeline completo do zero. O identificador do vendedor não estava dentro do arquivo — precisei extrair o `seller_id`, ano e mês diretamente do nome do arquivo via regex.
+Recebi múltiplos arquivos CSV com vendas mensais de vendedores e precisei construir um pipeline completo do zero. O identificador do vendedor não estava dentro do arquivo precisei extrair o `seller_id`, ano e mês diretamente do nome do arquivo via regex.
 
 O dataset veio com vários cenários propositais que precisaram ser tratados: dados duplicados, vendedores e produtos sem cadastro, arquivos com nome inválido, schema diferente entre arquivos e dados fora do período de referência (late arriving data).
 
@@ -41,7 +41,7 @@ notebooks/
 
 ### Bronze — ingestão raw
 
-Primeiro passo: ler os arquivos e validar o nome antes de qualquer coisa. Usei regex para extrair `seller_id`, ano e mês do filename. Arquivos com nome inválido (como `abc_2025_99_sales.csv`) ou schema errado são rejeitados e salvos em uma tabela de rejeição — nunca descartados.
+Primeiro passo: ler os arquivos e validar o nome antes de qualquer coisa. Usei regex para extrair `seller_id`, ano e mês do filename. Arquivos com nome inválido (como `abc_2025_99_sales.csv`) ou schema errado são rejeitados e salvos em uma tabela de rejeição  nunca descartados.
 
 Implementei um controle de idempotência via tabela `_control/` para que o mesmo arquivo nunca seja ingerido duas vezes, mesmo que o job rode mais de uma vez.
 
@@ -54,7 +54,7 @@ Implementei um controle de idempotência via tabela `_control/` para que o mesmo
 
 Aqui é onde a maioria dos problemas apareceu. Fiz tipagem correta de todos os campos, padronização de strings (trim, lower, initcap), deduplicação com lógica de negócio (em caso de duplicata, mantém o registro com maior desconto) e validação de qualidade (sem amount negativo, sem status inválido, sem datas nulas).
 
-Vendedores e produtos sem cadastro **não são descartados** — preferi sinalizar com flags (`seller_registered`, `product_registered`) para não perder informação de negócio. O mesmo para dados fora do período de referência (`late_arriving`).
+Vendedores e produtos sem cadastro **não são descartados** preferi sinalizar com flags (`seller_registered`, `product_registered`) para não perder informação de negócio. O mesmo para dados fora do período de referência (`late_arriving`).
 
 Usei MERGE upsert por chave de negócio `(order_id, product_id, seller_id)` para garantir exactly-once no reprocessamento.
 
@@ -70,7 +70,7 @@ Modelei em **Star Schema** com uma tabela fato central e quatro dimensões. Resp
 
 **Por que Star Schema?**
 
-As dimensões deste projeto são pequenas (menos de 50 sellers, menos de 50 produtos), então normalizar mais (Snowflake) não agrega valor. A Wide Table sacrifica flexibilidade analítica. O Star Schema é o equilíbrio ideal — joins de um único nível, ideal para Spark e Delta Lake, com particionamento na fato e Z-order para acelerar queries.
+As dimensões deste projeto são pequenas (menos de 50 sellers, menos de 50 produtos), então normalizar mais (Snowflake) não agrega valor. A Wide Table sacrifica flexibilidade analítica. O Star Schema é o equilíbrio ideal joins de um único nível, ideal para Spark e Delta Lake, com particionamento na fato e Z-order para acelerar queries.
 
 **Modelo:**
 ```
